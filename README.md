@@ -119,6 +119,7 @@ Then speak naturally:
 * Offline AI model integration
 * Multi-language support (English + Nepali)
 * Context-aware memory for conversations
+* App-based automation features using APIs
 
 ---
 
