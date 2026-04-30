@@ -17,7 +17,3 @@ LLM_MAX_TOKENS:  int = int(os.getenv("LLM_MAX_TOKENS", "403"))
 LLM_TEMPERATURE: float = float(os.getenv("LLM_TEMPERATURE", "0.5"))
 
 
-# LLM Settings 
-LLM_MODEL:       str = os.getenv("LLM_MODEL", "gpt-4o")
-LLM_MAX_TOKENS:  int = int(os.getenv("LLM_MAX_TOKENS", "403"))
-LLM_TEMPERATURE: float = float(os.getenv("LLM_TEMPERATURE", "0.5"))
