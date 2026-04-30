@@ -32,7 +32,7 @@ It combines speech recognition, large language models (LLMs), and text-to-speech
 VoxaAI/
 │── main.py
 │── speech_input.py
-│── ai_engine.py
+│── ai_processor.py
 │── speech_output.py
 │── config.py
 │── requirements.txt
