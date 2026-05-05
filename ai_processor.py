@@ -44,3 +44,21 @@ class AIProcessor:
         )
 
 
+ #public
+    def get_response(self, user_text: str) -> str:
+        
+      
+        #Send the user's query to the LLM and return the assistant's reply.
+        #Handles API errors and returns user-friendly messages.
+        
+        if not user_text.strip():
+            return "Please say something for me to respond to."
+
+        if OPENAI_API_KEY in ("", "_OPENAI_API_KEY_HERE_"):
+            return (
+                "Response unavailable. Please set your OpenAI API key in config.py or .env."
+                "Please add your OpenAI API key to config.py or .env."
+            )
+
+        messages = self._build_messages(user_text)
+
