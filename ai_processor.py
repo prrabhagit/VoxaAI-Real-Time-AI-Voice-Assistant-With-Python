@@ -29,5 +29,18 @@ class AIProcessor:
         self.conversation_history: list[dict] = []
         logger.info(f"AIProcessor ready — model: {self.model}")
 #private
+    def _trim_history(self):
+      #keep only the last MAX_HISTORY_TURNS, 2 messages
+        max_msgs = MAX_HISTORY_TURNS * 2
+        if len(self.conversation_history) > max_msgs:
+            self.conversation_history = self.conversation_history[-max_msgs:]
+
+    def _build_messages(self, user_text: str) -> list[dict]:
+        self._trim_history()
+        return (
+            [{"role": "system", "content": SYSTEM_PROMPT}]
+            + self.conversation_history
+            + [{"role": "user", "content": user_text}]
+        )
 
 
