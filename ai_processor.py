@@ -62,3 +62,19 @@ class AIProcessor:
 
         messages = self._build_messages(user_text)
 
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+                max_tokens=LLM_MAX_TOKENS,
+                temperature=LLM_TEMPERATURE,
+            )
+            reply = response.choices[0].message.content.strip()
+
+            # Update history
+            self.conversation_history.append({"role": "user",      "content": user_text})
+            self.conversation_history.append({"role": "assistant",  "content": reply})
+
+            logger.info(f"LLM replied ({len(reply)} chars)")
+            return reply
+
