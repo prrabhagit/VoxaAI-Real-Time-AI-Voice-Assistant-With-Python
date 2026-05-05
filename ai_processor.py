@@ -78,3 +78,6 @@ class AIProcessor:
             logger.info(f"LLM replied ({len(reply)} chars)")
             return reply
 
+    except AuthenticationError:
+            logger.error("Invalid OpenAI API key.")
+            return "Authentication failed. Please check your API key."
