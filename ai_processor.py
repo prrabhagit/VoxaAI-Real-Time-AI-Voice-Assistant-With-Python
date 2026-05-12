@@ -237,7 +237,7 @@ class MathProcessor(BaseProcessor):
 
         return f"{amount:g} {from_unit} is {result_str} {to_unit}."
 
-    def _convert_temperature(self, amount: float, from_unit: str, to_unit: str) -> Optional[str]:
+     def _convert_temperature(self, amount: float, from_unit: str, to_unit: str) -> Optional[str]:
         #Convert temperature between C, F, K.
         fu = from_unit[0].lower()
         tu = to_unit[0].lower()
@@ -262,4 +262,50 @@ class MathProcessor(BaseProcessor):
             unit_name = "Celsius"
 
         return f"{amount}° {from_unit.capitalize()} is {result:.1f}° {unit_name}."
+    def _try_percentage(self, text: str) -> Optional[str]:
+        """Handle percentage calculations."""
+        # "X% of Y"
+        match = re.search(r"([\d.]+)\s*%\s*of\s*([\d,]+)", text)
+        if match:
+            pct = float(match.group(1))
+            total = float(match.group(2).replace(",", ""))
+            result = pct / 100 * total
+            return f"{pct}% of {total:g} is {result:.4g}."
 
+        # "what percent is X of Y"
+        match = re.search(r"what percent(?:age)? is ([\d.]+) of ([\d.]+)", text)
+        if match:
+            part = float(match.group(1))
+            whole = float(match.group(2))
+            if whole == 0:
+                return "Can't divide by zero."
+            pct = (part / whole) * 100
+            return f"{part} is {pct:.2f}% of {whole}."
+
+        return None
+
+    def _try_sympy(self, text: str) -> Optional[str]:
+        """Use sympy for algebra and symbolic math."""
+        try:
+            import sympy as sp
+
+            # Basic solve pattern: "solve X squared + 5X + 6 = 0"
+            match = re.search(r"solve\s+(.+?)(?:\s*=\s*0)?$", text)
+            if match:
+                expr_str = match.group(1)
+                expr_str = re.sub(r"(\d+)?x", lambda m: f"{m.group(1) or ''}*x", expr_str)
+                expr_str = re.sub(r"squared", "**2", expr_str)
+                expr_str = re.sub(r"cubed", "**3", expr_str)
+
+                x = sp.Symbol("x")
+                try:
+                    expr = sp.sympify(expr_str)
+                    solutions = sp.solve(expr, x)
+                    if solutions:
+                        sol_strs = [str(sp.nsimplify(s, rational=False)) for s in solutions]
+                        return f"The solutions are: {', '.join(sol_strs)}."
+                except Exception:
+                    pass
+        except ImportError:
+            pass
+        return None
