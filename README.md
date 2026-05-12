@@ -35,6 +35,7 @@ VoxaAI/
 │── math_processor.py
 │── speech_output.py
 │── config.py
+|.  web_search_processor.py
 │── requirements.txt
 │── README.md
 ```
