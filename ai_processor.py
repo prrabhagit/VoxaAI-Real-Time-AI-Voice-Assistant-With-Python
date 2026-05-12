@@ -1,3 +1,17 @@
+"""
+processors/ai_processor.py
+─────────────────────────────────────────────────────────────
+Math processor for VoxaAi Assistant.
+
+Handles:
+  - Arithmetic: "what is 145 times 37?"
+  - Algebra: "solve x squared plus 5x plus 6"
+  - Unit conversions: "convert 100 km to miles"
+  - Constants: "what is pi?", "speed of light"
+
+Uses Python's eval() safely (via sympy) + sympy for algebra.
+Falls back to the LLM for complex math word problems.
+"""
 
 import re
 import math
@@ -8,7 +22,7 @@ from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-# Unit conversion table 
+# Unit conversion table (to SI base units)
 UNIT_CONVERSIONS = {
     # Length
     "km": ("m", 1000), "kilometer": ("m", 1000), "kilometres": ("m", 1000),
@@ -89,32 +103,32 @@ class MathProcessor(BaseProcessor):
 
         text_lower = text.lower().strip()
 
-        # Constants ----------------------------------------------------------------------------------
+        #  Constants 
         for const_name, (value, description) in CONSTANTS.items():
             if const_name in text_lower:
                 return description + f" ({value:.6g})."
 
-        # Unit conversion ----------------------------------------------------------------------------
+        #  Unit conversion 
         conversion_result = self._try_unit_conversion(text_lower)
         if conversion_result:
             return conversion_result
 
-        #  Percentage ------------------------------------------------------------------------------
+        #  Percentage 
         pct_result = self._try_percentage(text_lower)
         if pct_result:
             return pct_result
 
-        # Direct arithmetic evaluation -------------------------------------------------------------
+        #  Direct arithmetic evaluation 
         calc_result = self._try_evaluate(text_lower)
         if calc_result is not None:
             return calc_result
 
-        # Sympy algebra ----------------------------------------------------------------------------
+        # Sympy algebra
         sympy_result = self._try_sympy(text_lower)
         if sympy_result:
             return sympy_result
 
-        # LLM fallback for complex problems --------------------------------------------------------
+        # LLM fallback for complex problems
         if self.llm:
             prompt = (
                 f"Solve this math problem step by step, then give the final answer clearly. "
@@ -237,8 +251,8 @@ class MathProcessor(BaseProcessor):
 
         return f"{amount:g} {from_unit} is {result_str} {to_unit}."
 
-     def _convert_temperature(self, amount: float, from_unit: str, to_unit: str) -> Optional[str]:
-        #Convert temperature between C, F, K.
+    def _convert_temperature(self, amount: float, from_unit: str, to_unit: str) -> Optional[str]:
+        """Convert temperature between C, F, K."""
         fu = from_unit[0].lower()
         tu = to_unit[0].lower()
 
@@ -262,6 +276,7 @@ class MathProcessor(BaseProcessor):
             unit_name = "Celsius"
 
         return f"{amount}° {from_unit.capitalize()} is {result:.1f}° {unit_name}."
+
     def _try_percentage(self, text: str) -> Optional[str]:
         """Handle percentage calculations."""
         # "X% of Y"
